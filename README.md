@@ -17,6 +17,10 @@
   最小 Prometheus `client_golang` 示例，直接在 Go 服务里定义并暴露 `/metrics`。
 - `cmd/oteldemo`
   最小 OpenTelemetry 示例，通过 OTel metrics API 记录指标，再用 Prometheus exporter 暴露 `/metrics`。
+- `cmd/otelstackdemo`
+  完整 OpenTelemetry 本地链路示例，应用通过 OTLP 上报 traces 和 metrics，不暴露 `/metrics`。
+- `docs/otel-local-stack.md`
+  本地运行说明，配合 `docker-compose.yml` 启动 Collector、Prometheus、Tempo 和 Grafana。
 
 ## 快速对比
 
@@ -51,8 +55,26 @@ go run ./cmd/oteldemo
 - `http://localhost:2113/work`
 - `http://localhost:2113/metrics`
 
+运行完整 OTel 本地链路示例：
+
+```bash
+docker compose up -d
+go run ./cmd/otelstackdemo
+```
+
+然后访问：
+
+- `http://localhost:8080/work`
+- `http://localhost:8080/checkout`
+- `http://localhost:3000`
+
+更完整的说明见：
+
+- [OTel Local Stack Demo](docs/otel-local-stack.md)
+
 ## 推荐阅读顺序
 
 1. 先看 `docs/go-metrics-prometheus-opentelemetry.md`，建立指标和选型认知。
 2. 再跑 `cmd/promdemo`，理解最直接的 Prometheus 风格埋点。
 3. 最后跑 `cmd/oteldemo`，感受 OTel API 和导出模型的区别。
+4. 如果想看完整 OTLP -> Collector -> Prometheus/Tempo -> Grafana 链路，再跑 `cmd/otelstackdemo` 和 `docker-compose.yml`。
