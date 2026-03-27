@@ -1,5 +1,18 @@
+target: all
+
 server:
   http_listen_port: 3200
+
+metrics_generator:
+  registry:
+    collection_interval: 5s
+    external_labels:
+      source: tempo
+  storage:
+    path: /var/tempo/generator/wal
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write
+        send_exemplars: true
 
 distributor:
   receivers:
@@ -22,3 +35,10 @@ storage:
       path: /var/tempo/wal
     local:
       path: /var/tempo/blocks
+
+overrides:
+  defaults:
+    metrics_generator:
+      processors:
+        - span-metrics
+        - service-graphs

@@ -15,6 +15,7 @@ services:
     image: prom/prometheus:latest
     command:
       - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver
     volumes:
       - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
@@ -23,7 +24,7 @@ services:
       - otel-collector
 
   tempo:
-    image: grafana/tempo:latest
+    image: grafana/tempo:2.10.0
     command:
       - -config.file=/etc/tempo/tempo.yaml
     volumes:
@@ -35,8 +36,11 @@ services:
     image: grafana/grafana-oss:latest
     volumes:
       - ./deploy/grafana/provisioning/datasources/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - ./deploy/grafana/provisioning/dashboards/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
+      - ./deploy/grafana/dashboards:/var/lib/grafana/dashboards:ro
     environment:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
       GF_AUTH_DISABLE_LOGIN_FORM: "true"
     ports:
       - "3000:3000"

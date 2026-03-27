@@ -75,6 +75,24 @@ curl -i http://localhost:8080/checkout?fail=1
 
 建议多请求几次，因为 metrics 是按周期导出的，traces 也是批量发送的。
 
+如果你想持续打流量，可以直接运行仓库里的脚本：
+
+```bash
+python3 scripts/load_local_stack.py
+```
+
+这个脚本默认会：
+
+- 每秒随机发 `10-40` 次请求
+- 在 `http://localhost:8080/work` 和 `http://localhost:8080/checkout` 之间随机分配
+- 一直运行到你按 `Ctrl-C`
+
+也可以只跑几秒钟做快速验证：
+
+```bash
+python3 scripts/load_local_stack.py --duration-seconds 5
+```
+
 ## 如何验证链路
 
 ### 1. 验证 Collector 是否收到并暴露 metrics
@@ -114,6 +132,31 @@ http://localhost:9090/targets
 ```text
 http://localhost:3000
 ```
+
+这个本地 demo 默认启用了匿名访问，并把匿名用户角色设成 `Admin`，这样你可以直接看到：
+
+- `Dashboards` 创建入口
+- `Connections -> Data sources`
+- `Explore`
+
+Grafana 还会自动 provision 一个默认 dashboard：
+
+- `Dashboards -> OTel Local Stack -> OTel Local Stack Overview`
+- `Dashboards -> OTel Local Stack -> OTel Trace RED Metrics`
+
+这个 dashboard 默认包含：
+
+- 按路由拆分的请求速率
+- 按路由拆分的失败速率
+- P95 请求耗时
+- 当前选定时间范围内的失败总数
+
+新的 trace dashboard 会基于 Tempo `metrics-generator` 写入 Prometheus 的 trace-derived metrics，展示：
+
+- 按 `span_name` 聚合的 trace span rate
+- 按 `span_name` 聚合的 trace error rate
+- 按 `span_name` 聚合的 trace P95 duration
+- 当前时间范围内的 trace error 总数
 
 进入 `Explore`，选择 `Tempo` 数据源，搜索最近几分钟的 traces。
 
